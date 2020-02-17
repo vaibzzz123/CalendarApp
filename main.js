@@ -25,3 +25,15 @@ function layOutDay(events) {
         
     });
 }
+
+function insertEvent(event) {
+    const calendarContainer = document.getElementById("calendarContainer");
+    console.log(calendarContainer);
+    // check for overlap
+    const eventDiv = document.createElement("div");
+    // eventDiv.className += "calendarEvent";
+
+    calendarContainer.appendChild(eventDiv);
+}
+
+insertEvent([]);
