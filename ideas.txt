@@ -1,0 +1,12 @@
+have array of events posted so far, in the tuple format
+have array of divs that hold the event, and their width, etc.
+
+when inserting new event:
+* find overlapping events in array one
+* if there are overlapping events:
+    * go into array2. resize those events to take up half space to the left
+    * insert new event into array1
+    * insert new event into array2, resizing so it takes up the right side portion
+* otherwise
+    * insert into array1
+    * insert into array2, taking maximum width of container
