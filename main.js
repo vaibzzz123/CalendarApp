@@ -26,7 +26,7 @@ function createEventDomElement(event) {
 
     const eventLength = event.end - event.start;
     eventContainer.style.height = `${eventLength}px`;
-    eventContainer.style.width = `600px`;
+    // eventContainer.style.width = `600px`;
     eventContainer.style.top = `${event.start}px`;
 
     const blueBar = document.createElement("div");
@@ -90,7 +90,7 @@ function insertEvent(event) {
 
 // layOutDay([{start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}, {start: 610, end: 670} ]);
 
-layOutDay([{start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}]);
+// layOutDay([{start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}]);
 
 // layOutDay([{start: 540, end: 600}]);
 

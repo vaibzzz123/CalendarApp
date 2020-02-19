@@ -10,3 +10,26 @@ when inserting new event:
 * otherwise
     * insert into array1
     * insert into array2, taking maximum width of container
+
+actually nah that hasn't worked
+
+new approach: levels, divs inside the calendarContainer div
+
+* Will start with 1 level, and will have a max level counter
+* look for all overlapping elements, sort them by level (will have element, level tuple)
+* find first level where I can insert such that the elements don't overlap at that particular level
+* if level doesn't exist, create it, increment counter
+* if there are overlapping elements on other levels
+    * split them into before currentLevel and after currentLevel
+    * Find closest levels of overlapping elements (before and after), width = (closestAfter-closestBefore)/closestAfter * maxWidth (set to maxLevel and 1 respectively at start of search)
+    * resize all elements that are overlapping of last level to maxWidth/(level of new event I'm inserting) (actually idk)
+
+OR
+
+do the non-overlapping intervals problem
+    * remove all items from the calendar if required
+    * find all intervals in the set such that removing them gets rid of overlap, put remaining intervals into one level
+    * repeat the same process for the removed intervals, until there are none
+    * these will be our levels
+    * insert the elements one by one, starting from the biggest level
+        * set width of any particular

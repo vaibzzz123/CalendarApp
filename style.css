@@ -3,19 +3,28 @@
     --colNum: 1; /* Will change this at runtime depending on overlap */ 
     /* --gridHeight: 120px;
     --wrapperH: 40px; // for demonstrating the use of CSS Variables */
-  }
+}
 
 #outerContainer {
     display: flex;
 }
 
 #calendarContainer {
-    /* display: grid; */
+    display: flex;
+    flex-direction: row;
+    /* align-items: stretch; */
     width: 600px;
     height: 720px;
     padding: 0px 10px 0px 10px;
     background-color: #ebebeb;
 }
+
+/* level divs */
+/* #calendarContainer > div {
+    width: inherit;
+    display: flex;
+    flex-direction: row;
+} */
 
 #numberContainer {
     display: flex;
