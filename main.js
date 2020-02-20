@@ -1,6 +1,6 @@
-const insertedEventsOrganized = [];
-const insertedEventsRaw = [];
 const maxWidth = 600;
+let insertedEventsOrganized = [];
+let insertedEventsRaw = [];
 let maxLevels = -1;
 
 function getOverlappingEvents(newEvent, newEventLevel) {
@@ -14,7 +14,8 @@ function getOverlappingEvents(newEvent, newEventLevel) {
         levelElements.forEach((insertedEvent, index) => {
             if((newEvent.end > insertedEvent.start && newEvent.end < insertedEvent.end)
             || (newEvent.start > insertedEvent.start && newEvent.start < insertedEvent.end)
-            || (newEvent.start < insertedEvent.start && newEvent.end > insertedEvent.end)) {
+            || (newEvent.start < insertedEvent.start && newEvent.end > insertedEvent.end)
+            || (newEvent.start === insertedEvent.start && newEvent.end === insertedEvent.end)) {
                 eventsAtLevel.push(index);
             }
         });
@@ -33,6 +34,12 @@ function createEventDomElement(event, level) {
     eventContainer.style.height = `${eventLength}px`;
     eventContainer.style.width = `${maxWidth/(level+1)}px`;
     eventContainer.style.top = `${event.start}px`;
+    const leftPos = maxLevels === 0 ? 93.484 : 93.484 + (maxWidth/(maxLevels+1))*level;
+    eventContainer.style.left = `${leftPos}px`;
+    // if(level === 0) {
+        // total = 95.48px = 72.48 + 3 + 10
+        // total = 93.484px
+    // }
 
     const blueBar = document.createElement("div");
     blueBar.className = "blueBar";
@@ -54,52 +61,18 @@ function createEventDomElement(event, level) {
     return eventContainer;
 }
 
-function resizeEvents(toResize) { // given array of indices
-    toResize.forEach((overlappingEventIndex) => {
-        const overlappingEventElement = insertedDomElements[overlappingEventIndex];
-
-        let widthProperty = overlappingEventElement.style.width;
-        const textIndex = widthProperty.indexOf("px");
-        let width = Number(widthProperty.slice(0, textIndex));
-        width /= 2;
-        
-        overlappingEventElement.style.width = `${width}px`;
-    });
-}
-
 function insertEvent(event, level) {
     const levelContainer = document.getElementById(`level${level}`);
-
-    const eventDomElement = createEventDomElement(event, level);
 
     if(insertedEventsOrganized.length - 1 < level) {
         insertedEventsOrganized.push([]);
     }
 
-    // need to insert to raw as well
+    const eventDomElement = createEventDomElement(event, level);
 
     insertedEventsOrganized[level].push(event);
+    insertedEventsRaw.push(event);
     levelContainer.appendChild(eventDomElement);
-}
-
-function deepCopyFunction(inObject) {
-    let outObject, value, key
-  
-    if(typeof inObject !== "object" || inObject === null) {
-      return inObject // Return the value if inObject is not an object
-    }
-  
-    // Create an array or object to hold the values
-    outObject = Array.isArray(inObject) ? [] : {}
-  
-    for (key in inObject) {
-      value = inObject[key]
-  
-      // Recursively (deep) copy for nested objects, including arrays
-      outObject[key] = (typeof value === "object" && value !== null) ? deepCopyFunction(value) : value
-    }
-    
-    return outObject
 }
 
 function addLevel() {
@@ -144,6 +117,7 @@ function createOptimalLayout(events) {
             if(currentEvent.start < lastEvent.end) { // overlap
                 currentCollection.splice(j, 1);
                 leftoverElems.push(currentEvent);
+                j--;
             }
         }
 
@@ -157,13 +131,37 @@ function createOptimalLayout(events) {
 
 }
 
+function doesOverlapExist(overlapArray) {
+    for(const level of overlapArray) {
+        if (level.length > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function resetCalendar() {
+    insertedEventsOrganized = [];
+    insertedEventsRaw = [];
+    maxLevels = -1;
+
+    const calendarContainer = document.getElementById("calendarContainer");
+    // let length = calendarContainer.children.length;
+    while(calendarContainer.children.length > 0) {
+        const levelDiv = calendarContainer.children.item(0);
+        calendarContainer.removeChild(levelDiv);
+        // length--;
+    }
+}
+
 function layOutDay(events) {
     // events.forEach(event => {
         // insertEvent(event);
     // });
 
     // clearCalendar(); // removes all events/levels from board, resetting the entire state
-    const optimalLayout = createOptimalLayout(insertedEventsOrganized.concat(events));
+    const optimalLayout = createOptimalLayout(insertedEventsRaw.concat(events));
+    resetCalendar();
 
     for(let currentLevel = 0; currentLevel < optimalLayout.length; ++currentLevel) {
         addLevel();
@@ -174,7 +172,7 @@ function layOutDay(events) {
             // check for overlap between current elem and what's inserted
             const overlappingEventIndices = getOverlappingEvents(newEvent, currentLevel); // array of array of indices
             // if overlap
-            if(overlappingEventIndices.length !== 0) {
+            if(doesOverlapExist(overlappingEventIndices)) {
                 // for every element in overlap
                 overlappingEventIndices.forEach((levelEventIndices, overlappingEventLevel) => {
                     const levelDiv = document.getElementById(`level${overlappingEventLevel}`);
@@ -185,6 +183,10 @@ function layOutDay(events) {
                         const textIndex = widthProperty.indexOf("px");
                         const width = Number(widthProperty.slice(0, textIndex));
                         overlappingElement.style.width = `${width * (maxLevels/(maxLevels+1))}px`;
+                        if(overlappingEventLevel!== 0) {
+                            const leftPos = 93.484 + (maxWidth/(maxLevels+1))*overlappingEventLevel;
+                            overlappingElement.style.left = `${leftPos}px`;    
+                        }
                     });
                 });
             }
@@ -198,7 +200,7 @@ function layOutDay(events) {
 
 layOutDay([{start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}, {start: 610, end: 670}]);
 
-// addLevel();
+// layOutDay([{start: 200, end: 300}, {start: 200, end: 300}, {start: 200, end: 300}]);
 
 // layOutDay([{start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}]);
 

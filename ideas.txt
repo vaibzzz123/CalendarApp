@@ -24,7 +24,7 @@ new approach: levels, divs inside the calendarContainer div
     * Find closest levels of overlapping elements (before and after), width = (closestAfter-closestBefore)/closestAfter * maxWidth (set to maxLevel and 1 respectively at start of search)
     * resize all elements that are overlapping to (newLevels-1/newLevels)*width
 
-OR
+actually that hasn't worked, this is the final approach:
 
 do the non-overlapping intervals problem
     * remove all items from the calendar if required
@@ -38,9 +38,9 @@ in summary:
 2. for every element (starting from first level)
     2.1 increment maxLevels if required. and insert new div for level
     2.2 create new element
-    2.3 check for overlap with all elements on PREVIOUS level only (is it actually all overlaps?)
+    2.3 check for overlap with all elements inserted so far
     2.4 if there is:
         2.4.1 for every element in overlap
-            2.4.1.1 resize their width to currentWidth * (maxLevels-1/maxLevels)
+            2.4.1.1 resize their width to currentWidth * (maxLevels/maxLevels+1)
             2.4.1.2 recursively repeat for every element in their overlap (that's of lower level) (might not be necessary)
     2.5 take maxWidth/level for width of new element, insert into specified level
