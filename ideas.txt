@@ -19,10 +19,10 @@ new approach: levels, divs inside the calendarContainer div
 * look for all overlapping elements, sort them by level (will have element, level tuple)
 * find first level where I can insert such that the elements don't overlap at that particular level
 * if level doesn't exist, create it, increment counter
-* if there are overlapping elements on other levels
+* if there are overlapping elements on
     * split them into before currentLevel and after currentLevel
     * Find closest levels of overlapping elements (before and after), width = (closestAfter-closestBefore)/closestAfter * maxWidth (set to maxLevel and 1 respectively at start of search)
-    * resize all elements that are overlapping of last level to maxWidth/(level of new event I'm inserting) (actually idk)
+    * resize all elements that are overlapping to (newLevels-1/newLevels)*width
 
 OR
 
@@ -31,5 +31,16 @@ do the non-overlapping intervals problem
     * find all intervals in the set such that removing them gets rid of overlap, put remaining intervals into one level
     * repeat the same process for the removed intervals, until there are none
     * these will be our levels
-    * insert the elements one by one, starting from the biggest level
-        * set width of any particular
+
+in summary:
+
+1. figure out optimal layout from doing non-overlapping intervals problem
+2. for every element (starting from first level)
+    2.1 increment maxLevels if required. and insert new div for level
+    2.2 create new element
+    2.3 check for overlap with all elements on PREVIOUS level only (is it actually all overlaps?)
+    2.4 if there is:
+        2.4.1 for every element in overlap
+            2.4.1.1 resize their width to currentWidth * (maxLevels-1/maxLevels)
+            2.4.1.2 recursively repeat for every element in their overlap (that's of lower level) (might not be necessary)
+    2.5 take maxWidth/level for width of new element, insert into specified level
