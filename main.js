@@ -1,7 +1,7 @@
 const maxWidth = 600;
-let insertedEventsOrganized = [];
-let insertedEventsRaw = [];
-let maxLevels = -1;
+let insertedEventsOrganized = []; // array of arrays, with each array inside this representing all events at a particular level
+let insertedEventsRaw = []; // use this just to keep track of what events were inserted, useful when calling resetCalendar()
+let maxLevels = -1; // start out at -1, becomes 0 when event is first inserted
 
 function getOverlappingEvents(newEvent, newEventLevel) {
     const overlappingEvents = [];
@@ -12,6 +12,7 @@ function getOverlappingEvents(newEvent, newEventLevel) {
         }
         const eventsAtLevel = [];
         levelElements.forEach((insertedEvent, index) => {
+            // all criteria for an overlap
             if((newEvent.end > insertedEvent.start && newEvent.end < insertedEvent.end)
             || (newEvent.start > insertedEvent.start && newEvent.start < insertedEvent.end)
             || (newEvent.start < insertedEvent.start && newEvent.end > insertedEvent.end)
@@ -36,10 +37,6 @@ function createEventDomElement(event, level) {
     eventContainer.style.top = `${event.start}px`;
     const leftPos = maxLevels === 0 ? 93.484 : 93.484 + (maxWidth/(maxLevels+1))*level;
     eventContainer.style.left = `${leftPos}px`;
-    // if(level === 0) {
-        // total = 95.48px = 72.48 + 3 + 10
-        // total = 93.484px
-    // }
 
     const blueBar = document.createElement("div");
     blueBar.className = "blueBar";
@@ -100,11 +97,6 @@ function createOptimalLayout(events) {
         return a.start - b.start;
     });
 
-    // const optimalLayout = [sortedEvents];
-
-
-    // console.log(sortedEvents);
-
     let currentCollection = sortedEvents;
     while(currentCollection.length !== 0) {
 
@@ -114,7 +106,7 @@ function createOptimalLayout(events) {
             const currentEvent = currentCollection[j];
             const lastEvent = currentCollection[j-1];
      
-            if(currentEvent.start < lastEvent.end) { // overlap
+            if(currentEvent.start < lastEvent.end) { // indicates an overlap
                 currentCollection.splice(j, 1);
                 leftoverElems.push(currentEvent);
                 j--;
@@ -126,7 +118,6 @@ function createOptimalLayout(events) {
         currentCollection = deepCopyFunction(leftoverElems); // deep copy, don't wanna set reference
     }
 
-    // console.log(leftoverElems);
     return optimalLayout;
 
 }
@@ -146,51 +137,44 @@ function resetCalendar() {
     maxLevels = -1;
 
     const calendarContainer = document.getElementById("calendarContainer");
-    // let length = calendarContainer.children.length;
     while(calendarContainer.children.length > 0) {
         const levelDiv = calendarContainer.children.item(0);
         calendarContainer.removeChild(levelDiv);
-        // length--;
     }
 }
 
-function layOutDay(events) {
-    // events.forEach(event => {
-        // insertEvent(event);
-    // });
+function resizeRepositionEvents(overlappingEventIndices) {
+    overlappingEventIndices.forEach((levelEventIndices, overlappingEventLevel) => {
 
-    // clearCalendar(); // removes all events/levels from board, resetting the entire state
-    const optimalLayout = createOptimalLayout(insertedEventsRaw.concat(events));
+        const levelDiv = document.getElementById(`level${overlappingEventLevel}`);
+        levelEventIndices.forEach((eventIndex) => {
+            const overlappingElement = levelDiv.children.item(eventIndex);
+
+            const widthProperty = overlappingElement.style.width;
+            const textIndex = widthProperty.indexOf("px");
+            const width = Number(widthProperty.slice(0, textIndex));
+            overlappingElement.style.width = `${width * (maxLevels/(maxLevels+1))}px`;
+
+            const leftPos = maxLevels === 0 ? 93.484 : 93.484 + (maxWidth/(maxLevels+1))*overlappingEventLevel;
+            overlappingElement.style.left = `${leftPos}px`;
+        });
+    });
+}
+
+function layOutDay(events) {
+    const optimalLayout = createOptimalLayout(insertedEventsRaw.concat(events)); // gives it events currently in calendar as well
     resetCalendar();
 
     for(let currentLevel = 0; currentLevel < optimalLayout.length; ++currentLevel) {
         addLevel();
 
         const eventsAtLevel = optimalLayout[currentLevel];
-
         eventsAtLevel.forEach((newEvent) => {
-            // check for overlap between current elem and what's inserted
-            const overlappingEventIndices = getOverlappingEvents(newEvent, currentLevel); // array of array of indices
-            // if overlap
+            // array of array of indices, gives indices of overlapping elements for a particular level
+            const overlappingEventIndices = getOverlappingEvents(newEvent, currentLevel);
             if(doesOverlapExist(overlappingEventIndices)) {
-                // for every element in overlap
-                overlappingEventIndices.forEach((levelEventIndices, overlappingEventLevel) => {
-                    const levelDiv = document.getElementById(`level${overlappingEventLevel}`);
-                    levelEventIndices.forEach((eventIndex) => {
-                        // need to get the overlapping elements
-                        const overlappingElement = levelDiv.children.item(eventIndex);
-                        const widthProperty = overlappingElement.style.width;
-                        const textIndex = widthProperty.indexOf("px");
-                        const width = Number(widthProperty.slice(0, textIndex));
-                        overlappingElement.style.width = `${width * (maxLevels/(maxLevels+1))}px`;
-                        if(overlappingEventLevel!== 0) {
-                            const leftPos = 93.484 + (maxWidth/(maxLevels+1))*overlappingEventLevel;
-                            overlappingElement.style.left = `${leftPos}px`;    
-                        }
-                    });
-                });
+                resizeRepositionEvents(overlappingEventIndices);
             }
-
             insertEvent(newEvent, currentLevel);
         });
     }

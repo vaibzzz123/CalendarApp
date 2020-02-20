@@ -1,10 +1,3 @@
-:root {
-    --rowNum: 1;
-    --colNum: 1; /* Will change this at runtime depending on overlap */ 
-    /* --gridHeight: 120px;
-    --wrapperH: 40px; // for demonstrating the use of CSS Variables */
-}
-
 #outerContainer {
     display: flex;
 }
@@ -12,19 +5,11 @@
 #calendarContainer {
     display: flex;
     flex-direction: row;
-    /* align-items: stretch; */
     width: 600px;
     height: 720px;
     padding: 0px 10px 0px 10px;
     background-color: #ebebeb;
 }
-
-/* level divs */
-/* #calendarContainer > div {
-    width: inherit;
-    display: flex;
-    flex-direction: row;
-} */
 
 #numberContainer {
     display: flex;
@@ -54,14 +39,11 @@
 .calendarEvent {
     flex: 1 1 auto;
     display: flex;
-    /* display: inline; */
     background-color: #ffffff;
     position: absolute;
     min-width: content;
     max-width: 600px;
     width: fit-content;
-    /* max-width: 600px; */
-    /* min-width: 10px; */
 }
 
 .calendarEventTextContainer {
